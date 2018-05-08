@@ -58,7 +58,10 @@ def partition(D, question):
         row = D[i,:]
 		# TODO ask question and split to get true_rows and false_rows
 		# TODO make use true_rows.append(row)
-		
+		if question(D=row):
+            true_rows.append(row)
+        else:
+            false_rows.append(row)
 		
     return (np.array(true_rows), np.array(false_rows))
 
@@ -104,6 +107,6 @@ def information_gain(D, question, t_col):
     # TODO implement computation of information gain here
     # remember: entropy(parent) - [weighted average] entropy(children)
     
-    
+    information_gain = entrop - (true_weight * entrop_true + false_weight * entrop_false)
     
     return information_gain

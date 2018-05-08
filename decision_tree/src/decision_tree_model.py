@@ -185,7 +185,14 @@ class decision_node(object):
 		# TODO iterate through the tree till you get an answer
 		# TODO you can ask a question with self.question(D=D)
 		
-		
+		if self.question(D=D):
+            if type(self.true_branch) is leaf_node:
+                return self.true_branch.get_answer()
+            return self.true_branch.ask_question(D=D)
+        else:
+            if type(self.false_branch) is leaf_node:
+                return self.false_branch.get_answer()
+            return self.false_branch.ask_question(D=D)
 		
         return 0
         
