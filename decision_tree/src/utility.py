@@ -22,8 +22,16 @@ def entropy(t):
     """
     entrop = 0
 	# TODO compute entropy here
-	
-	
+	hist = {}
+    num_rows = np.size(t, 0)
+    for i in range(0, np.size(t,0)):
+        if not t[i] in hist.keys():
+            hist[t[i]] = 0
+        hist[t[i]] += 1
+    entrop = 0
+    for val in hist.values():
+        arg = val/num_rows
+        entrop-=arg*np.log2(arg)
 	
     return entrop
 
