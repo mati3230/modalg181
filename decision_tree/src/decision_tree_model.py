@@ -57,8 +57,9 @@ class decision_tree_model(object):
             gain = information_gain(D=D, question=questions[i], t_col=t_col)
 			# TODO determine column where you want to make split
 			# TODO assign that column to split_col variable
-			
-			
+			if gain > max_gain:
+                max_gain = gain
+                split_col = i
         # end of the tree reached
         if max_gain == 0:        
             return leaf_node(D=D, depth=depth, t_col=t_col)
