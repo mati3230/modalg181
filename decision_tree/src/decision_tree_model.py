@@ -57,7 +57,7 @@ class decision_tree_model(object):
             gain = information_gain(D=D, question=questions[i], t_col=t_col)
 			# TODO determine column where you want to make split
 			# TODO assign that column to split_col variable
-			if gain > max_gain:
+            if gain > max_gain:
                 max_gain = gain
                 split_col = i
         # end of the tree reached
@@ -185,7 +185,7 @@ class decision_node(object):
 		# TODO iterate through the tree till you get an answer
 		# TODO you can ask a question with self.question(D=D)
 		
-		if self.question(D=D):
+        if self.question(D=D):
             if type(self.true_branch) is leaf_node:
                 return self.true_branch.get_answer()
             return self.true_branch.ask_question(D=D)

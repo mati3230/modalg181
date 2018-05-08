@@ -22,7 +22,7 @@ def entropy(t):
     """
     entrop = 0
 	# TODO compute entropy here
-	hist = {}
+    hist = {}
     num_rows = np.size(t, 0)
     for i in range(0, np.size(t,0)):
         if not t[i] in hist.keys():
@@ -58,7 +58,7 @@ def partition(D, question):
         row = D[i,:]
 		# TODO ask question and split to get true_rows and false_rows
 		# TODO make use true_rows.append(row)
-		if question(D=row):
+        if question(D=row):
             true_rows.append(row)
         else:
             false_rows.append(row)
