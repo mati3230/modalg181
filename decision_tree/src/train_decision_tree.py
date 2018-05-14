@@ -82,7 +82,7 @@ data = data_frame.as_matrix()
 # split data into train and test dataset
 num_examples = data.shape[0]
 print("num examples: {0}".format(num_examples))
-train_percentage=0.8
+train_percentage=0.5
 assert train_percentage < 1
 num_train = int(train_percentage * num_examples)
 train_data = data[:num_train, :]

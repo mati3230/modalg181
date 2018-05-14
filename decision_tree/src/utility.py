@@ -28,6 +28,7 @@ def entropy(t):
         if not t[i] in hist.keys():
             hist[t[i]] = 0
         hist[t[i]] += 1
+        
     entrop = 0
     for val in hist.values():
         arg = val/num_rows
