@@ -99,6 +99,17 @@ def build_dnn(hidden_layer=HIDDEN_LAYER):
     # TODO assign model_dir parameter of DNNClassifier with path_model() in order to save the trained network as a model file to ./logs/ folder;
     # TODO try to raise the performance with different hyperparameter (see above)
     classifier = None
+    classifier = tf.estimator.DNNClassifier(
+        feature_columns=feature_columns,
+        # Two hidden layers of 10 nodes each.
+        hidden_units=hidden_layer,
+        # Activation function, relu means rectified linear unit
+        activation_fn=tf.nn.relu,
+        # Number of different classifications (--> labels)
+        n_classes=names.labels.__len__(),
+        # Save the trained network as a model file to the ./logs/ folder;
+        model_dir=path_model()
+    )
 
     return classifier
 
@@ -148,12 +159,16 @@ def main(argv):
     # TODO call the training function of the dnn classifier
     # TODO specify input_fn parameter of train function
     # TODO assign TRAIN_STEPS to steps parameter
+    classifier.train(
+        input_fn=train_input_fn,
+        steps=TRAIN_STEPS)
 
     train_eval_input_fn=lambda: load_data.eval_input_fn(train_features, train_labels, BATCH_SIZE)
     # Evaluate training performance of the model
     # TODO 3)
     # TODO call the evaluate function of the dnn classifier with the train set and assign result to train_result
     train_result = None
+    train_result = classifier.evaluate(input_fn=train_eval_input_fn)
     assert train_result is not None
     # print and save results
     print('\nTrain accuracy:', train_result["accuracy"])
@@ -163,6 +178,7 @@ def main(argv):
     # TODO 4)
     # TODO call the evaluate function of the dnn classifier with the test set
     eval_result = None
+    eval_result = classifier.evaluate(input_fn=test_eval_input_fn)
     assert eval_result is not None
     # print and save results
     print('\nTest set accuracy:', eval_result["accuracy"])

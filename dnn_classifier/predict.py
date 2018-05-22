@@ -25,6 +25,7 @@ predict_input=lambda: load_data.eval_input_fn(predict_features,
 prediction = None
 # TODO 5)
 # TODO call predict function of dnn classifier and assign result to prediction
+prediction = classifier.predict(input_fn=predict_input)
 assert prediction is not None
 # get feature names (without label) from saved file
 names = load_data.Names(estimator.PATH_DATASET)
