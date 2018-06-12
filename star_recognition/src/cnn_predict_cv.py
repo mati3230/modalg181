@@ -49,7 +49,7 @@ def get_image(filename, label):
     plot_image(img)
     #"""
     img = preprocess_image(img, image_size=FLAGS.image_size)
-    label = np.ndarray([label])
+    label = np.array([label])
     #img = cv2.imread(filename)
     return img, label
 
