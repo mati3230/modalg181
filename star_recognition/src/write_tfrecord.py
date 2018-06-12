@@ -67,4 +67,3 @@ for i in range(len(stars)):
 writer.close()
 
 print("done")
-        

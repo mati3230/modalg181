@@ -13,13 +13,13 @@ from datetime import datetime
 FLAGS = tf.flags.FLAGS
 
 tf.flags.DEFINE_string("eval_dir", "../../cnn_test", """Directory where to write event logs.""")
-tf.flags.DEFINE_string("eval_dataset_dir", "../../datasets/stars_from_google_images.tfrecords", """Directory where .tfrecord for testing is placed.""")
-tf.flags.DEFINE_string("checkpoint_dir", "../../cnn_train", """Directory where to read model checkpoints.""")
+tf.flags.DEFINE_string("eval_dataset_dir", "../../datasets/stars_test.tfrecords", """Directory where .tfrecord for testing is placed.""")
+tf.flags.DEFINE_string("checkpoint_dir", "../../cnn_train_good_weights", """Directory where to read model checkpoints.""")
 tf.flags.DEFINE_integer("eval_interval_secs", 60 * 1, """How often to run the eval.""")
-tf.flags.DEFINE_integer("num_examples", 100, """Number of examples to run.""")
+#tf.flags.DEFINE_integer("num_examples", 100, """Number of examples to run.""")
 tf.flags.DEFINE_boolean("run_once", True, """Whether to run eval only once.""")
 tf.flags.DEFINE_float("moving_average_decay", 0.9999, """Weights are filtered with exponential moving avarage filter, decay of the filter""")
-tf.flags.DEFINE_integer("image_size", 40, """Size of an image""")
+tf.flags.DEFINE_integer("image_size", 140, """Size of an image""")
 tf.flags.DEFINE_integer("batch_size", 1, """Batch size""")
 tf.flags.DEFINE_integer("num_classes", 5, """Number of persons you want to recognize""")
 use_one_hot = False
@@ -46,8 +46,8 @@ def dataset_input_fn():
         # Perform additional preprocessing on the parsed data.
         #image = tf.image.decode_jpeg(parsed["image"])
         # Convert the image data from string back to the numbers
-        image = tf.decode_raw(parsed["image"], tf.float32)
-        image = tf.reshape(image, [FLAGS.image_size, FLAGS.image_size])
+        image = tf.decode_raw(parsed["image"], tf.uint8)
+        image = tf.reshape(image, [FLAGS.image_size, FLAGS.image_size, 3])
         
         if use_one_hot:
             label = tf.decode_raw(parsed["label"], tf.float64)
@@ -62,9 +62,19 @@ def dataset_input_fn():
     # tensor for each example.
     dataset = dataset.map(parser)
     # TODO apply batch size of 'FLAGS.batch_size'
+    dataset = dataset.batch(FLAGS.batch_size)
     # TODO create a one shot iterator
+    iterator = dataset.make_one_shot_iterator()
 
     # TODO assign the result of 'iterator.get_next()' to 'features, labels'
+    features, labels = iterator.get_next()
+    
+    # apply grayscale to the batch
+    features = tf.image.rgb_to_grayscale(features, name="grayscale_conversion")
+    
+    # normalize data
+    features = tf.cast(features, dtype=tf.float32)
+    features = tf.scalar_mul(1/255, features)
     # The input-function must return a dict wrapping the images.
     x = {"image": features}
     y = labels
@@ -99,22 +109,29 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
             for qr in tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS):
                 threads.extend(qr.create_threads(sess, coord=coord, daemon=True, start=True))
             
-            num_iter = int(math.ceil(FLAGS.num_examples / FLAGS.batch_size))
+            
+            num_examples = 0
+            for record in tf.python_io.tf_record_iterator(FLAGS.eval_dataset_dir):
+                num_examples += 1
+            
+            print("Test set has {} examples".format(num_examples))
+            
+            num_iter = int(math.ceil(num_examples / FLAGS.batch_size))
             true_count = 0  # Counts the number of correct predictions.
             total_sample_count = num_iter * FLAGS.batch_size
             step = 0
             while step < num_iter and not coord.should_stop():
                 predictions = sess.run([top_k_op])
-                print(predictions)
+                #print(predictions)
                 true_count += np.sum(predictions)
                 step += 1
             # Compute precision @ 1.
-            precision = true_count / total_sample_count
-            print('%s: precision @ 1 = %.3f' % (datetime.now(), precision))
+            accuracy = true_count / total_sample_count
+            print('%s: accuracy @ 1 = %.3f' % (datetime.now(), accuracy))
             
             summary = tf.Summary()
             summary.ParseFromString(sess.run(summary_op))
-            summary.value.add(tag='Precision @ 1', simple_value=precision)
+            summary.value.add(tag='Accuracy @ 1', simple_value=accuracy)
             summary_writer.add_summary(summary, global_step)
         except Exception as e:  # pylint: disable=broad-except
             coord.request_stop(e)

@@ -43,14 +43,19 @@ def dataset_input_fn():
     dataset = dataset.map(parser)
     
     # TODO shuffle dataset with buffer_size=10000
+    dataset = dataset.shuffle(buffer_size=10000)
     
     # TODO apply batch size of 32
+    dataset = dataset.batch(32)
     
     # TODO repeat the dataset 3 times
+    dataset = dataset.repeat(3) # num epochs
     
     # TODO create a one shot iterator
+    iterator = dataset.make_one_shot_iterator()
     
     # TODO assign the result of 'iterator.get_next()' to 'features, labels'
+    features, labels = iterator.get_next()
     
     # The input-function must return a dict wrapping the images.
     x = {"image": features}
@@ -64,16 +69,15 @@ hidden_units = [IMAGE_SIZE, IMAGE_SIZE/2]
 num_classes = 5
 
 # TODO create a 'tf.estimator.DNNClassifier' (MLP) 
-model = tf.estimator.DNNClassifier(feature_columns=
+model = tf.estimator.DNNClassifier(feature_columns=feature_columns,
                                    # TODO assign member 'hidden_units' to variable 'hidden_units'
-                                   hidden_units=
+                                   hidden_units=hidden_units,
                                    # TODO set the 'activation_fn' to ReLu-Activation function
-                                   activation_fn=
+                                   activation_fn=tf.nn.relu,
                                    # TODO assign 'n_classes' to num_classes
-                                   n_classes=
+                                   n_classes=num_classes,
                                    # TODO set the 'model dir' to '../../star_recognition_checkpoint/'
-                                   model_dir=
-								   )
+                                   model_dir="../../star_recognition_checkpoint/")
 
 print("start training")
 model.train(input_fn=dataset_input_fn, steps=2)

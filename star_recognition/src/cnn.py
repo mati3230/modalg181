@@ -84,6 +84,7 @@ def inference(images):
     conv1_stride = 1
     # Tensor input should become 4-D: [Batch Size, Height, Width, Channel]
     images = tf.reshape(images, shape=[FLAGS.batch_size, FLAGS.image_size, FLAGS.image_size, 1])
+    
     # the first and the last stride arg correspond with batch and depth
     with tf.variable_scope("conv1") as scope:
         kernel = _variable_with_weight_decay("weights",
@@ -238,7 +239,8 @@ def train(total_loss, global_step):
     
     # Compute gradients.
     with tf.control_dependencies([loss_averages_op]):
-        opt = tf.train.GradientDescentOptimizer(lr)
+        #opt = tf.train.GradientDescentOptimizer(lr)
+        opt = tf.train.MomentumOptimizer(lr, FLAGS.momentum)
         grads = opt.compute_gradients(total_loss)
     
     # Apply gradients.
